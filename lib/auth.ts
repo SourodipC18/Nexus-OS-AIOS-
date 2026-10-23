@@ -1,4 +1,5 @@
 import { betterAuth } from 'better-auth'
+import { username } from 'better-auth/plugins'
 import { Pool } from 'pg'
 
 const origin = (value?: string) => value ? (value.startsWith('http') ? value : `https://${value}`) : undefined
@@ -17,6 +18,13 @@ const productionOrigins = [
 export const auth = betterAuth({
   database: new Pool({ connectionString: process.env.DATABASE_URL }),
   emailAndPassword: { enabled: true },
+  plugins: [username({
+    minUsernameLength: 1,
+    maxUsernameLength: 64,
+    usernameValidator: (value) => /^[A-Za-z0-9]+$/.test(value),
+    usernameNormalization: (value) => value.toLowerCase(),
+    displayUsername: false,
+  })],
   baseURL: process.env.BETTER_AUTH_URL || origin(process.env.VERCEL_PROJECT_PRODUCTION_URL) || origin(process.env.VERCEL_URL) || process.env.V0_RUNTIME_URL,
   trustedOrigins: process.env.NODE_ENV === 'development' ? developmentOrigins : productionOrigins,
   ...(process.env.NODE_ENV === 'development' ? {
