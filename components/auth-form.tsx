@@ -14,11 +14,20 @@ export function AuthForm() {
 
   async function submit(event: React.FormEvent) {
     event.preventDefault(); setPending(true); setError('')
-    const result = mode === 'sign-in'
-      ? await authClient.signIn.username({ username, password })
-      : await authClient.signUp.username({ username, password, name: username })
+  if (mode === 'sign-up') {
+    const response = await fetch('/api/auth/username-sign-up', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    })
+    const result = await response.json().catch(() => null)
+    if (!response.ok) setError(result?.message || 'We could not create the workspace.')
+    else { router.push('/'); router.refresh() }
+  } else {
+    const result = await authClient.signIn.username({ username, password })
     if (result.error) setError(result.error.message || 'We could not authenticate with those details.')
     else { router.push('/'); router.refresh() }
+  }
     setPending(false)
   }
 
