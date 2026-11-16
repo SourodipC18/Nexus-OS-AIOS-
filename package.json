@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "check:env": "node scripts/check-env.mjs",
+    "db:migrate": "pnpm dlx auth@1.7.11 migrate --config ./lib/auth.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.102",

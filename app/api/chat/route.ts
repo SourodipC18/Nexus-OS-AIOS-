@@ -8,7 +8,13 @@ const google = createGoogleGenerativeAI({
 })
 
 export async function POST(request: Request) {
-  const session = await auth.api.getSession({ headers: await headers() })
+  let session: Awaited<ReturnType<typeof auth.api.getSession>>
+  try {
+    session = await auth.api.getSession({ headers: await headers() })
+  } catch (error) {
+    console.error('[nexus] Chat authentication lookup failed.', error)
+    return Response.json({ error: 'NEXUS could not reach its account database. Check DATABASE_URL and try again.' }, { status: 503 })
+  }
   if (!session?.user) return new Response('Unauthorized', { status: 401 })
 
   if (!process.env.GEMINI_API_KEY) {

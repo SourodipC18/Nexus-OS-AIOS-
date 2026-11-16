@@ -16,6 +16,7 @@ const productionOrigins = [
 ].filter(Boolean) as string[]
 
 export const auth = betterAuth({
+  secret: process.env.BETTER_AUTH_SECRET,
   database: new Pool({ connectionString: process.env.DATABASE_URL }),
   emailAndPassword: { enabled: true },
   plugins: [username({

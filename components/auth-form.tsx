@@ -13,22 +13,31 @@ export function AuthForm() {
   const [pending, setPending] = useState(false)
 
   async function submit(event: React.FormEvent) {
-    event.preventDefault(); setPending(true); setError('')
-  if (mode === 'sign-up') {
-    const response = await fetch('/api/auth/username-sign-up', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    })
-    const result = await response.json().catch(() => null)
-    if (!response.ok) setError(result?.message || 'We could not create the workspace.')
-    else { router.push('/'); router.refresh() }
-  } else {
-    const result = await authClient.signIn.username({ username, password })
-    if (result.error) setError(result.error.message || 'We could not authenticate with those details.')
-    else { router.push('/'); router.refresh() }
-  }
-    setPending(false)
+    event.preventDefault()
+    setPending(true)
+    setError('')
+
+    try {
+      if (mode === 'sign-up') {
+        const response = await fetch('/api/auth/username-sign-up', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+        })
+        const result = await response.json().catch(() => null)
+        if (!response.ok) throw new Error(result?.message || 'We could not create the workspace.')
+      } else {
+        const result = await authClient.signIn.username({ username, password })
+        if (result.error) throw new Error(result.error.message || 'We could not authenticate with those details.')
+      }
+
+      router.push('/')
+      router.refresh()
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : 'The request failed. Please try again.')
+    } finally {
+      setPending(false)
+    }
   }
 
   return <form onSubmit={submit} className="auth-form" aria-busy={pending}>

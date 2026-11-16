@@ -13,21 +13,29 @@ export async function POST(request: Request) {
     return Response.json({ message: 'Enter a user ID and password.' }, { status: 400 })
   }
 
-  const upstream = await auth.handler(
-    new Request(new URL('/api/auth/sign-up/email', request.url), {
-      method: 'POST',
-      headers: request.headers,
-      body: JSON.stringify({
-        email: `${username}@users.nexus.invalid`,
-        password,
-        name: username,
-        username,
+  try {
+    const upstream = await auth.handler(
+      new Request(new URL('/api/auth/sign-up/email', request.url), {
+        method: 'POST',
+        headers: request.headers,
+        body: JSON.stringify({
+          email: `${username}@users.nexus.invalid`,
+          password,
+          name: username,
+          username,
+        }),
       }),
-    }),
-  )
+    )
 
-  return new Response(upstream.body, {
-    status: upstream.status,
-    headers: upstream.headers,
-  })
+    return new Response(upstream.body, {
+      status: upstream.status,
+      headers: upstream.headers,
+    })
+  } catch (error) {
+    console.error('[nexus] Account creation failed.', error)
+    return Response.json(
+      { message: 'NEXUS could not reach its account database. Check DATABASE_URL and try again.' },
+      { status: 503 },
+    )
+  }
 }
