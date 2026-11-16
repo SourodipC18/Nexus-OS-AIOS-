@@ -34,13 +34,13 @@ A Next.js workspace for coordinating projects, agents, and ideas. The current ap
    pnpm check:env
    ```
 
-5. Create or update the Better Auth tables (including the username plugin schema) in the configured database:
+5. Create or update the Better Auth tables (including the username plugin schema) and NEXUS conversation tables in the configured database:
 
    ```sh
    pnpm db:migrate
    ```
 
-   Run this after changing Better Auth plugins or database schema configuration. It connects to the database in `DATABASE_URL` and may create or alter tables.
+   Run this after changing Better Auth plugins or database schema configuration, and when adding app migrations. It connects to the database in `DATABASE_URL` and may create or alter tables.
 
 6. Start the development server:
 
@@ -56,7 +56,7 @@ A Next.js workspace for coordinating projects, agents, and ideas. The current ap
 | --- | --- |
 | `pnpm dev` | Start the local development server |
 | `pnpm check:env` | Check required runtime configuration and URL/secret shape |
-| `pnpm db:migrate` | Apply Better Auth's current schema to the configured PostgreSQL database |
+| `pnpm db:migrate` | Apply Better Auth's schema and pending NEXUS SQL migrations to PostgreSQL |
 | `pnpm build` | Create a production build |
 | `pnpm start` | Serve a production build |
 
@@ -69,4 +69,4 @@ A Next.js workspace for coordinating projects, agents, and ideas. The current ap
 
 ## Current scope
 
-The workspace shell, account flow, and Gemini chat endpoint are present. The dashboard's sample agent states and zero-valued metrics are placeholders; projects, tasks, activity, search, settings, and agent execution still need implementation.
+The workspace shell, account flow, and Gemini assistant are present. Assistant conversations are saved per user and can be reopened, renamed, or deleted. The dashboard's sample agent states and zero-valued metrics are placeholders; projects, tasks, activity, search, settings, and agent execution still need implementation.

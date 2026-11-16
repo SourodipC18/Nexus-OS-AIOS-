@@ -1,6 +1,6 @@
 import { betterAuth } from 'better-auth'
 import { username } from 'better-auth/plugins'
-import { Pool } from 'pg'
+import { db } from './db'
 
 const origin = (value?: string) => value ? (value.startsWith('http') ? value : `https://${value}`) : undefined
 const developmentOrigins = [
@@ -17,7 +17,7 @@ const productionOrigins = [
 
 export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET,
-  database: new Pool({ connectionString: process.env.DATABASE_URL }),
+  database: db,
   emailAndPassword: { enabled: true },
   plugins: [username({
     minUsernameLength: 1,
