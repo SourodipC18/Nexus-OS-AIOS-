@@ -13,6 +13,7 @@ const requestSchema = z.object({
 
 export async function POST(request: Request) {
   let session: Awaited<ReturnType<typeof auth.api.getSession>>
+  let conversationSaved = false
   try {
     session = await auth.api.getSession({ headers: await headers() })
   } catch (error) {
@@ -65,9 +66,10 @@ export async function POST(request: Request) {
     } finally {
       client.release()
     }
+    conversationSaved = true
 
     const result = streamText({
-      model: google('gemini-2.0-flash'),
+      model: google('gemini-3.6-flash'),
       system: 'You are NEXUS, a concise chief-of-staff AI. Help users plan and execute work. Be transparent about what is proposed versus completed. Never claim tools ran unless they did.',
       messages: history,
       onFinish: async ({ text }) => {
@@ -86,6 +88,10 @@ export async function POST(request: Request) {
     })
     return result.toTextStreamResponse()
   } catch (error) {
+    if (!conversationSaved) {
+      console.error('[nexus] Conversation could not be saved.', error)
+      return Response.json({ error: 'Conversation storage is unavailable. Check DATABASE_URL and run pnpm db:migrate.' }, { status: 503 })
+    }
     console.error('[nexus] Gemini chat request failed.', error)
     const message = error instanceof Error && /quota|rate.?limit|429/i.test(error.message)
       ? 'Gemini free-tier quota or rate limit reached. Please try again later.'
